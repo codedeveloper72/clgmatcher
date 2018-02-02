@@ -1,0 +1,171 @@
+<?php
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+* hook_form_alter
+*/
+function common_form_alter(&$form, $form_state, $form_id) { 
+  if($form_id == 'college_node_form') {
+    $country_default_value =$form_state['values']['field_cmn_city']['und']['0']['value'];
+    $state_default_value = $form_state['values']['field_cmn_state']['und']['0']['value'];
+    $city_default_value = $form_state['values']['field_cmn_city']['und']['0']['value'];
+
+    $selected_state = isset($form_state['values']['select_state']) ? $form_state['values']['select_state'] : NULL;
+    $selected_district = isset($form_state['values']['select_district']) ? $form_state['values']['select_district'] : NULL;
+    $state_options = _get_state();    
+    $form['select_state'] = array(
+            '#title' => 'State',
+            '#options' => $state_options,
+            '#type' => 'select',
+            '#ajax' => array(      
+               'callback' => 'district_data_set',
+               'wrapper' => 'dropdown-district-replace',
+             ),
+            
+    );
+    
+    $form['select_district'] = array(
+            '#title' => 'District',
+            '#options' => _get_district_list($selected_state),
+            '#type' => 'select',
+            '#prefix' => '<div id="dropdown-district-replace">',
+            '#suffix' => '</div>',
+            '#ajax' => array(      
+               'callback' => 'city_data_set',
+               'wrapper' => 'field-name-field-state',
+             ),
+            
+    );
+    
+    
+    
+    return $form;
+  }
+}
+
+// ajax country callback
+function field_cmn_country_callback($form, $form_state) {
+  $form_field_state =$form['field_cmn_state'];
+  $form_field_city = $form['field_cmn_city'];
+  return array(
+    '#type' => 'ajax',
+    '#commands' => array(
+      ajax_command_replace("#field_cmn_state_replace", render($form_field_state)),
+      ajax_command_replace("#field_cmn_city_replace", render($form_field_city))
+    )
+  );
+}
+
+//ajax state callback
+function field_cmn_state_callback($form, $form_state) {
+  return $form['field_cmn_city'];
+}
+
+
+
+
+function p($arg) {
+  print_r($arg);
+  exit();
+}
+
+function _get_state() {
+  $sql = db_query("SELECT tid ,name FROM {taxonomy_term_data} INNER JOIN {taxonomy_term_hierarchy} USING (tid) WHERE parent = 0 AND vid = 4");
+  foreach($sql as $val) {
+    $state[$val->tid] = $val->name;
+  }
+  return $state;
+}
+
+function _get_district_list($state_tid) {
+  $district = array(NULL => 'Select District');
+  if($state_tid != NULL) {
+    $sql = db_query("SELECT tid ,name FROM {taxonomy_term_data} INNER JOIN {taxonomy_term_hierarchy} USING (tid) WHERE parent = {$state_tid} AND vid = 4");
+    foreach($sql as $val) {
+      $district[$val->tid] = $val->name;
+    }
+  }
+  return $district;
+}
+
+function _get_city_list($dist_tid) {
+  $city = array(NULL => 'Select City');
+  if($dist_tid != NULL) {
+    $sql = db_query("SELECT tid ,name FROM {taxonomy_term_data} INNER JOIN {taxonomy_term_hierarchy} USING (tid) WHERE parent = {$dist_tid} AND vid = 4");
+    foreach($sql as $val) {
+      $city[$val->tid] = $val->name;
+    }
+  }
+  return $city;
+}
+
+function district_data_set($form, &$form_state) {
+  return $form['select_district'];
+}
+function city_data_set($form, &$form_state) {
+  return $form['field_state'];
+}
+
+/**
+ * Implements hook_block_info.
+ */
+function common_block_info() {
+  $block = array(); 
+  $block['header_block'] = array(
+    'info' => t('Header block'),
+  );
+  $block['footer_block'] = array(
+    'info' => t('Footer block'),
+  );
+  return $block;
+}
+
+/**
+ * Implements hook_block_view.
+ */
+function common_block_view($delta = '') {
+  $block = array();
+  $data = array();
+  global $user;
+  switch ($delta) {    
+    case 'header_block':     
+        $block['subject'] = t('');
+        $block['content'] = theme('header_block_theme', array('data' => $data));      
+      break;
+    case 'footer_block':     
+        $block['subject'] = t('');
+        $block['content'] = theme('footer_block_theme', array('data' => $data));      
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_theme.
+ */
+function common_theme($existing, $type, $theme, $path) {
+  return array(      
+    'header_block_theme' => array(
+      'template' => 'header-block-theme',
+      'path' => drupal_get_path('module', 'common') . '/template',
+        ),
+    'footer_block_theme' => array(
+      'template' => 'footer-block-theme',
+      'path' => drupal_get_path('module', 'common') . '/template',
+        ),      
+    );
+}
+
+function get_term_name_by_tid($tid) {
+  if($tid > 0){    
+    $name = db_query("SELECT `name` FROM {taxonomy_term_data} WHERE tid = {$tid}")->fetchfield();    
+    return $name;
+  }else{
+    return FALSE;
+  }
+}
