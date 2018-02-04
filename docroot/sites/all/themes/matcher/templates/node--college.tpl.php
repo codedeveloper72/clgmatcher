@@ -1,6 +1,6 @@
 <?php 
 global $base_path;
-//print_r(field_collection_item_load(2));
+//print_r(field_collection_item_load(1));
 //print_r($node);exit;
 ?>
 <style>
@@ -242,54 +242,44 @@ global $base_path;
             <div class="amenitiesBlock sectionBlock">
                 <h4 class="text-center">Amenities</h4>
                 <ul class="infra flex-ul">
-                    <li class="amenit-items">
-                        <a class="library"> </a>
-                        <p>Library</p> 
-                    </li>
-                    <li class="amenit-items">
-                        <a class="food"> </a>
-                        <p>Cafeteria</p> 
-                    </li>
-                    <li class="amenit-items">
-                        <a class="room"> </a>
-                        <p>Hostel</p> 
-                    </li>
-                    <li class="amenit-items">
-                        <a class="play"> </a>
-                        <p>Sports Complex</p> 
-                    </li>
-                    <li class="amenit-items">
-                        <a class="gym"> </a>
-                        <p>Gym </p>
-                    </li>
-                    <li class="amenit-items">
-                        <a class="medical"> </a>
-                        <p>Hospital / Medical Facilities </p>
-                    </li>
-                    <li class="amenit-items">
-                        <a class="wifi"> </a>
-                        <p>Wi-Fi Campus </p>
-                    </li>
-                    <li class="amenit-items">
-                        <a class="auditorium"> </a>
-                        <p>Auditorium </p>
-                    </li>
-                    <li class="amenit-items">
-                        <a class="music_room"> </a>
-                        <p>Music Room </p>
-                    </li>
-                    <li class="amenit-items">
-                        <a class="ac_room"> </a>
-                        <p>A/C Classrooms </p>
-                    </li>
-                    <li class="amenit-items">
-                        <a class="convenience"> </a>
-                        <p>Convenience Store </p>
-                    </li>
-                    <li class="amenit-items">
-                        <a class="labs"> </a>
-                        <p>Labs</p> 
-                    </li>
+                    <?php 
+                    if($node->field_library_f['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="library"></a><p>Library</p></li>';
+                    }
+                    if($node->field_cafeteria_f['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="food"></a><p>Cafeteria</p></li>';
+                    }
+                    if($node->field_hostel_f['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="room"></a><p>Hostel</p></li>';
+                    }
+                    if($node->field_sports_complex_f['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="play"></a><p>Sports Complex</p></li>';
+                    }
+                    if($node->field_gym_f['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="gym"></a><p>Gym</p></li>';
+                    }
+                    if($node->field_hospital_f['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="medical"></a><p>Hospital / Medical Facilities</p></li>';
+                    }
+                    if($node->field_wi_fi_f['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="wifi"></a><p>Wi-Fi Campus</p></li>';
+                    }
+                    if($node->field_auditorium['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="auditorium"></a><p>Auditorium</p></li>';
+                    }
+                    if($node->field_music_room['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="music_room"></a><p>Music Room</p></li>';
+                    }
+                    if($node->field_a_c_classrooms['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="ac_room"></a><p>A/C Classrooms</p></li>';
+                    }
+                    if($node->field_convenience_store['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="convenience"></a><p>Convenience Store</p></li>';
+                    }
+                    if($node->field_labs['und'][0]['value'] == 1) {
+                      print '<li class="amenit-items"><a class="labs"></a><p>Labs</p></li>';
+                    }
+                    ?>
                     <div class="clear"></div>
                 </ul>
             </div>
@@ -572,46 +562,19 @@ global $base_path;
                 </section>    
             </div>
             <div class="courses-offered-block sectionBlock">
-                <h4 class="text-center">Courses Offered <span class="result-show-text">(Showing 5 of 68 Courses)</span></h4>
-                <section class="">
-                    <ul>
-                        <li>
-                            <a target="_blank" href="#">
-                                B.E. / B.Tech
-                            </a>
-                        </li>
-                        <li>
-                            <a target="_blank" href="#">
-                                Executive MBA/PGDM
-                            </a>
-                        </li>
-                        <li>
-                            <a target="_blank" href="#">
-                                M.Des
-                            </a>
-                        </li>
-                        <li>
-                            <a target="_blank" href="#">
-                                M.E./M.Tech
-                            </a>
-                        </li>
-                        <li>
-                            <a target="_blank" href="#">
-                                M.Sc.   
-                            </a>
-                        </li>
-                        <li>
-                            <a target="_blank" href="#">
-                                MBA/PGDM       
-                            </a>
-                        </li>
-                        <li>
-                            <a target="_blank" href="#">
-                                Ph.D.   
-                            </a>
-                        </li>
-                    </ul>    
-                </section>    
+                <?php 
+                if(isset($node->field_courses_offered['und'])) {
+                  print '<h4 class="text-center">Courses Offered <span class="result-show-text">(Showing '.count($node->field_courses_offered['und']).' Courses)</span></h4>';
+                  print '<section class="">';
+                  print '<ul>';
+                  foreach($node->field_courses_offered['und'] as $key => $val) {
+                    $dd = field_collection_item_load($val['value']);
+                    print '<li><a href="javascript:void()">'.$dd->field_course_name['und'][0]['value'].'</a></li>';
+                  }
+                  print '</ul>';
+                  print '</section>';
+                }
+                ?>                   
             </div>
             <div class="academic-excellence sectionBlock ">
                 <h4 class="text-center">Academic Excellence</h4>
